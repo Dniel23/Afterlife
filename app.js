@@ -1,6 +1,5 @@
-// app.js
-
 let ordensServico = JSON.parse(localStorage.getItem('ordensServico')) || [];
+let imagemBase64 = null; // Mantemos para a exibição local
 
 let mecanicoData = localStorage.getItem('mecanicoInfo');
 if (!mecanicoData) {
@@ -15,7 +14,83 @@ if (!mecanicoData) {
 document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('formOS').addEventListener('submit', adicionarOS);
     renderizarOS();
+
+    const areaColar = document.getElementById('areaColar');
+    const imagemInput = document.getElementById('imagem');
+    const removerImagemBtn = document.getElementById('removerImagem');
+    const colarBtn = document.getElementById('colarBtn');
+    const imagemColadaContainer = document.getElementById('imagemColadaContainer');
+    const imagemColada = document.getElementById('imagemColada');
+
+    areaColar.addEventListener('click', () => imagemInput.click());
+
+    areaColar.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        areaColar.classList.add('arrastando');
+    });
+
+    areaColar.addEventListener('dragleave', () => {
+        areaColar.classList.remove('arrastando');
+    });
+
+    areaColar.addEventListener('drop', (e) => {
+        e.preventDefault();
+        areaColar.classList.remove('arrastando');
+        const file = e.dataTransfer.files[0];
+        if (file && file.type.startsWith('image/')) {
+            carregarImagemLocal(file);
+        } else {
+            alert('Por favor, cole ou arraste apenas arquivos de imagem.');
+        }
+    });
+
+    colarBtn.addEventListener('click', async () => {
+        try {
+            const clipboardItems = await navigator.clipboard.read();
+            for (const clipboardItem of clipboardItems) {
+                for (const type of clipboardItem.types) {
+                    if (type.startsWith('image/')) {
+                        const blob = await clipboardItem.getType(type);
+                        carregarImagemLocal(blob);
+                        return; // Encontrou uma imagem, pode sair
+                    }
+                }
+            }
+            alert('Nenhuma imagem encontrada na área de transferência.');
+        } catch (err) {
+            if (err.name === 'NotAllowedError') {
+                alert('Permissão para acessar a área de transferência negada. Por favor, use o clique ou arraste para adicionar a imagem.');
+            } else {
+                console.error('Erro ao colar imagem:', err);
+                alert('Ocorreu um erro ao tentar colar a imagem.');
+            }
+        }
+    });
+
+    removerImagemBtn.addEventListener('click', () => {
+        imagemBase64 = null;
+        imagemColada.src = '#';
+        imagemColadaContainer.style.display = 'none';
+        document.getElementById('colarImagemContainer').style.display = 'flex';
+    });
+
+    imagemInput.addEventListener('change', function() {
+        if (this.files && this.files[0]) {
+            carregarImagemLocal(this.files[0]);
+        }
+    });
 });
+
+function carregarImagemLocal(fileOrBlob) {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        imagemBase64 = e.target.result;
+        document.getElementById('imagemColada').src = imagemBase64;
+        document.getElementById('imagemColadaContainer').style.display = 'flex';
+        document.getElementById('colarImagemContainer').style.display = 'none';
+    }
+    reader.readAsDataURL(fileOrBlob);
+}
 
 function adicionarOS(event) {
     event.preventDefault();
@@ -27,6 +102,12 @@ function adicionarOS(event) {
     const dataAtual = new Date().toISOString().split('T')[0];
     const imagemInput = document.getElementById('imagem');
     const imagemFile = imagemInput.files[0];
+    let arquivoParaEnviar = imagemFile;
+
+    if (!arquivoParaEnviar && imagemBase64) {
+        // Se não há arquivo selecionado, mas temos uma imagem colada (em base64), convertemos para Blob
+        arquivoParaEnviar = dataURLtoBlob(imagemBase64);
+    }
 
     const comissao = valorTotal * 0.2;
     const maoDeObra = valorTotal >= 50000 ? 0 : (valorTotal < 5000 ? 1000 : 0);
@@ -42,7 +123,8 @@ function adicionarOS(event) {
         valorRecebido,
         comissao,
         maoDeObra,
-        status
+        status,
+        imagemBase64: imagemBase64 // Mantemos para exibição na lista
     };
 
     ordensServico.push(os);
@@ -50,8 +132,23 @@ function adicionarOS(event) {
 
     renderizarOS();
     document.getElementById('formOS').reset();
+    document.getElementById('imagemColadaContainer').style.display = 'none';
+    document.getElementById('colarImagemContainer').style.display = 'flex';
+    imagemBase64 = null; // Reseta para a próxima OS
 
-    enviarParaDiscordComImagem(os, imagemFile);
+    enviarParaDiscordComImagem(os, arquivoParaEnviar);
+}
+
+function dataURLtoBlob(dataurl) {
+    const arr = dataurl.split(',');
+    const mime = arr[0].match(/:(.*?);/)[1];
+    const bstr = atob(arr[1]);
+    let n = bstr.length;
+    const u8arr = new Uint8Array(n);
+    while(n--){
+        u8arr[n] = bstr.charCodeAt(n);
+    }
+    return new Blob([u8arr], {type:mime});
 }
 
 function renderizarOS() {
@@ -70,6 +167,7 @@ function renderizarOS() {
             <p><strong>Comissão:</strong> R$ ${os.comissao.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
             <p><strong>Mão de Obra:</strong> R$ ${os.maoDeObra.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
             <p><strong>Status:</strong> ${os.status}</p>
+            ${os.imagemBase64 ? `<img src="${os.imagemBase64}" alt="Imagem da OS" style="max-width: 100%; border-radius: 8px; margin-top: 0.5rem;">` : ''}
             ${os.status === "Não Pago" ? `<button class="confirmar-btn" onclick="marcarComoPago(${index})">Confirmar como Pago</button>` : ''}
         `;
         lista.appendChild(item);
@@ -131,7 +229,7 @@ Data: ${os.data}
     formData.append("content", conteudo);
 
     if (imagemFile) {
-        formData.append("file", imagemFile, imagemFile.name);
+        formData.append("file", imagemFile, imagemFile.name || 'colada.png'); // Tenta usar o nome original ou um genérico
     }
 
     await fetch(webhookUrl, {

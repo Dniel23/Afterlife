@@ -1,226 +1,320 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <title>Dashboard de OS</title>
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap');
+    <meta charset="UTF-8" />
+    <title>Dashboard de OS</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap');
 
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-    body {
-      font-family: 'Orbitron', sans-serif;
-      background: linear-gradient(135deg, #1b0032, #000428);
-      color: #fff;
-      background-image: url('https://images.unsplash.com/photo-1630477677444-dbc7046cc3b4?auto=format&fit=crop&w=1950&q=80');
-      background-size: cover;
-      background-attachment: fixed;
-      background-position: center;
-      position: relative;
-      overflow-x: hidden;
-    }
+        body {
+            font-family: 'Orbitron', sans-serif;
+            background: linear-gradient(135deg, #330000, #1a0000); /* Degradê vermelho escuro */
+            color: #fff;
+            position: relative;
+            overflow-x: hidden;
+        }
 
-    body::before {
-      content: "";
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      background: rgba(0, 0, 0, 0.7);
-      backdrop-filter: blur(10px);
-      z-index: -1;
-    }
+        #video-fundo {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: -2;
+        }
 
-    h1 {
-      text-align: center;
-      font-size: 3rem;
-      color: #7df9ff;
-      text-shadow: 0 0 20px #00ffff;
-      margin: 2rem 0 1rem;
-      animation: glow 3s ease-in-out infinite alternate;
-    }
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.6); /* Overlap preto mais suave */
+            backdrop-filter: blur(8px);
+            z-index: -1;
+        }
 
-    @keyframes glow {
-      from {
-        text-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff;
-      }
-      to {
-        text-shadow: 0 0 20px #7df9ff, 0 0 40px #7df9ff;
-      }
-    }
+        h1 {
+            text-align: center;
+            font-size: 3rem;
+            color: #ffdddd; /* Tom de vermelho mais claro */
+            text-shadow: 0 0 15px #ff4d4d; /* Sombra vermelha mais suave */
+            margin: 2rem 0 1rem;
+            animation: glow 3s ease-in-out infinite alternate;
+        }
 
-    .container {
-      max-width: 1000px;
-      margin: auto;
-      padding: 2rem;
-    }
+        @keyframes glow {
+            from {
+                text-shadow: 0 0 8px #ff4d4d00, 0 0 15px #ff8080;
+            }
+            to {
+                text-shadow: 0 0 15px #ff4d4d, 0 0 30px #ffb3b3;
+            }
+        }
 
-    form, .importar {
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      border-radius: 16px;
-      padding: 2rem;
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1rem;
-      box-shadow: 0 8px 32px rgba(31, 38, 135, 0.3);
-      backdrop-filter: blur(15px);
-      animation: fadeIn 1s ease-out;
-    }
+        .container {
+            max-width: 1000px;
+            margin: auto;
+            padding: 2rem;
+        }
 
-    @keyframes fadeIn {
-      from {
-        opacity: 0;
-        transform: translateY(20px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
+        form, .importar {
+            background: rgba(255, 255, 255, 0.08); /* Fundo levemente mais visível */
+            border: 1px solid rgba(255, 255, 255, 0.2); /* Borda mais clara */
+            border-radius: 16px;
+            padding: 2rem;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            box-shadow: 0 8px 32px rgba(139, 0, 0, 0.3); /* Sombra vermelha */
+            backdrop-filter: blur(10px);
+            animation: fadeIn 1s ease-out;
+        }
 
-    input, select, textarea {
-      padding: 0.75rem;
-      border-radius: 10px;
-      border: none;
-      font-size: 1rem;
-      background: rgba(0, 0, 0, 0.5);
-      color: white;
-      transition: 0.3s;
-    }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
 
-    input:focus, select:focus, textarea:focus {
-      outline: none;
-      background: rgba(0, 0, 0, 0.7);
-      box-shadow: 0 0 10px #00f2ff;
-    }
+        input, select, textarea {
+            padding: 0.75rem;
+            border-radius: 10px;
+            border: none;
+            font-size: 1rem;
+            background: rgba(0, 0, 0, 0.6); /* Fundo mais escuro */
+            color: #eee; /* Texto levemente acinzentado */
+            transition: 0.3s;
+        }
 
-    button {
-      grid-column: span 2;
-      padding: 0.8rem;
-      border-radius: 12px;
-      font-size: 1rem;
-      font-weight: bold;
-      cursor: pointer;
-      color: white;
-      background: rgba(255, 255, 255, 0.05);
-      border: 2px solid transparent;
-      position: relative;
-      transition: border 0.3s ease;
-    }
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            background: rgba(0, 0, 0, 0.8); /* Foco mais escuro */
+            box-shadow: 0 0 10px #ff6666; /* Sombra de foco vermelha */
+        }
 
-    button::before {
-      content: "";
-      position: absolute;
-      top: -2px;
-      left: -2px;
-      right: -2px;
-      bottom: -2px;
-      border-radius: 14px;
-      background: linear-gradient(90deg, #00ffff, #ff00ff, #00ffff);
-      background-size: 300% 300%;
-      animation: borderFlow 4s linear infinite;
-      opacity: 0;
-      transition: opacity 0.3s ease;
-      z-index: -1;
-    }
+        button {
+            grid-column: span 2;
+            padding: 0.8rem;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            color: white;
+            background: rgba(255, 255, 255, 0.1); /* Fundo mais claro */
+            border: 2px solid transparent;
+            position: relative;
+            transition: border 0.3s ease;
+        }
 
-    button:hover::before {
-      opacity: 1;
-    }
+        button::before {
+            content: "";
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            border-radius: 14px;
+            background: linear-gradient(90deg, #ff6666, #cc0000, #ff6666); /* Degradê vermelho */
+            background-size: 300% 300%;
+            animation: borderFlow 4s linear infinite;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: -1;
+        }
 
-    @keyframes borderFlow {
-      0% {
-        background-position: 0% 50%;
-      }
-      100% {
-        background-position: 100% 50%;
-      }
-    }
+        button:hover::before {
+            opacity: 1;
+        }
 
-    .os-card {
-      background: rgba(0, 0, 0, 0.5);
-      border: 2px solid #6e00ff;
-      border-radius: 14px;
-      padding: 1.5rem;
-      margin: 1.5rem 0;
-      box-shadow: 0 0 20px rgba(110, 0, 255, 0.3);
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
+        @keyframes borderFlow {
+            0% {
+                background-position: 0% 50%;
+            }
+            100% {
+                background-position: 100% 50%;
+            }
+        }
 
-    .os-card:hover {
-      transform: scale(1.02);
-      box-shadow: 0 0 30px #00f2ff;
-    }
+        .os-card {
+            background: rgba(0, 0, 0, 0.6); /* Fundo mais escuro */
+            border: 2px solid #ff4d4d; /* Borda vermelha */
+            border-radius: 14px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            box-shadow: 0 0 20px rgba(255, 77, 77, 0.4); /* Sombra vermelha */
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
 
-    .confirmar-btn {
-      margin-top: 1rem;
-      padding: 0.6rem 1rem;
-      background: rgba(255, 255, 255, 0.05);
-      color: white;
-      border: 2px solid transparent;
-      border-radius: 10px;
-      font-weight: bold;
-      cursor: pointer;
-      position: relative;
-    }
+        .os-card:hover {
+            transform: scale(1.02);
+            box-shadow: 0 0 30px #ffffff;
+        }
 
-    .confirmar-btn::before {
-      content: "";
-      position: absolute;
-      top: -2px;
-      left: -2px;
-      right: -2px;
-      bottom: -2px;
-      border-radius: 12px;
-      background: linear-gradient(90deg, #00ffff, #ff00ff, #00ffff);
-      background-size: 300% 300%;
-      animation: borderFlow 4s linear infinite;
-      opacity: 0;
-      transition: opacity 0.3s ease;
-      z-index: -1;
-    }
+        .confirmar-btn {
+            margin-top: 1rem;
+            padding: 0.6rem 1rem;
+            background: rgba(255, 255, 255, 0.1); /* Fundo mais claro */
+            color: white;
+            border: 2px solid transparent;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            position: relative;
+        }
 
-    .confirmar-btn:hover::before {
-      opacity: 1;
-    }
-  </style>
+        .confirmar-btn::before {
+            content: "";
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            border-radius: 12px;
+            background: linear-gradient(90deg, #ff6666, #cc0000, #ff6666); /* Degradê vermelho */
+            background-size: 300% 300%;
+            animation: borderFlow 4s linear infinite;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: -1;
+        }
+
+        .confirmar-btn:hover::before {
+            opacity: 1;
+        }
+
+        .importar h3 {
+            color: #ffaaaa; /* Tom de vermelho claro */
+        }
+
+        #colarImagemContainer {
+            grid-column: span 2;
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        #areaColar {
+            flex-grow: 1;
+            border: 2px dashed rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            padding: 1rem;
+            text-align: center;
+            color: #ddd;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #areaColar.arrastando {
+            border-color: #ff6666;
+            background-color: rgba(255, 102, 102, 0.1);
+        }
+
+        #imagemColadaContainer {
+            grid-column: span 2;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        #imagemColada {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+        }
+
+        #removerImagem {
+            background: rgba(255, 255, 255, 0.1);
+            color: #eee;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        #removerImagem:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        #colarBtn {
+            background: rgba(255, 255, 255, 0.1);
+            color: #eee;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        #colarBtn:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+    </style>
 </head>
 <body>
 
-  <h1>📋 Cadastro de Ordem de Serviço</h1>
+    <video id="video-fundo" autoplay loop muted>
+        <source src="seu-video-de-fundo.mp4" type="video/mp4">
+        Seu navegador não suporta vídeos.
+    </video>
 
-  <div class="container">
+    <h1><span style="color: #ff4d4d;">OS</span> Dashboard</h1>
 
-    <form id="formOS">
-      <input type="text" id="numero" placeholder="Nº OS" required>
-      <input type="text" id="cliente" placeholder="Cliente" required>
-      <input type="number" id="valorTotal" placeholder="Valor Total" required>
-      <select id="status">
-        <option value="Não Pago">Não Pago</option>
-        <option value="Pago">Pago</option>
-      </select>
-      <input type="file" id="imagem" accept="image/*">
-      <button type="submit">Adicionar OS</button>
-    </form>
+    <div class="container">
 
-    <div class="importar">
-      <h3 style="grid-column: span 2; color: #7df9ff;">Importar OS não paga</h3>
-      <textarea id="importarTexto" rows="5" placeholder="Cole o texto da OS aqui..."></textarea>
-      <button onclick="importarOS()">Importar OS</button>
+        <form id="formOS">
+            <input type="text" id="numero" placeholder="Nº OS" required>
+            <input type="text" id="cliente" placeholder="Cliente" required>
+            <input type="number" id="valorTotal" placeholder="Valor Total" required>
+            <select id="status">
+                <option value="Não Pago">Não Pago</option>
+                <option value="Pago">Pago</option>
+            </select>
+
+            <div id="colarImagemContainer">
+                <div id="areaColar">
+                    Clique ou arraste uma imagem
+                </div>
+                <button type="button" id="colarBtn">Colar Imagem</button>
+            </div>
+            <input type="file" id="imagem" accept="image/*" style="display: none;">
+
+            <div id="imagemColadaContainer">
+                <img id="imagemColada" src="#" alt="Imagem Colada">
+                <button type="button" id="removerImagem">Remover Imagem</button>
+            </div>
+
+            <button type="submit">Adicionar OS</button>
+        </form>
+
+        <div class="importar">
+            <h3 style="grid-column: span 2;">Importar OS não paga</h3>
+            <textarea id="importarTexto" rows="5" placeholder="Cole o texto da OS aqui..."></textarea>
+            <button onclick="importarOS()">Importar OS</button>
+        </div>
+
+        <div id="listaOS">
+        </div>
+
     </div>
 
-    <div id="listaOS">
-      <!-- Os cards de OS aparecerão aqui -->
-    </div>
-
-  </div>
-
-  <script src="app.js"></script>
+    <script src="app.js"></script>
 </body>
 </html>
