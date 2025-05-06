@@ -267,33 +267,58 @@
             background-color: rgba(255, 255, 255, 0.2);
         }
 
-        .audio-controls {
+        .audio-container {
             position: fixed;
             bottom: 20px;
             left: 20px;
+            z-index: 10;
             display: flex;
+            flex-direction: column;
             align-items: center;
-            gap: 1rem;
-            background: rgba(0, 0, 0, 0.5);
+        }
+
+        .audio-toggle-button {
+            background: rgba(0, 0, 0, 0.3); /* Mais suave */
+            color: #fff;
+            border: none;
+            padding: 0.6rem; /* Menos espaçoso */
+            border-radius: 50%; /* Circular */
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            width: 40px; /* Tamanho fixo */
+            height: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .audio-toggle-button:hover {
+            background-color: rgba(0, 0, 0, 0.5); /* Hover mais suave */
+        }
+
+        .audio-toggle-button svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .audio-controls {
+            background: rgba(0, 0, 0, 0.3); /* Mais suave */
             color: #fff;
             padding: 10px;
             border-radius: 8px;
-            z-index: 10;
+            margin-top: 0.5rem;
+            display: none;
+            flex-direction: column;
+            gap: 0.5rem;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: opacity 0.3s ease, transform 0.3s ease;
         }
 
-        .audio-controls button {
-            grid-column: auto;
-            padding: 0.5rem 1rem;
-            border-radius: 8px;
-            font-size: 0.9rem;
-            font-weight: normal;
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            transition: background-color 0.3s ease;
-        }
-
-        .audio-controls button:hover {
-            background-color: rgba(255, 255, 255, 0.2);
+        .audio-controls.open {
+            display: flex;
+            opacity: 1;
+            transform: translateY(0);
         }
 
         .audio-controls input[type="range"] {
@@ -303,42 +328,96 @@
             border-radius: 5px;
             height: 5px;
             cursor: pointer;
+            width: 150px;
         }
 
         .audio-controls input[type="range"]::-webkit-slider-thumb {
             -webkit-appearance: none;
             appearance: none;
-            width: 15px;
-            height: 15px;
+            width: 12px;
+            height: 12px;
             background: #eee;
             border-radius: 50%;
             cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .audio-controls input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.1);
         }
 
         .audio-controls input[type="range"]::-moz-range-thumb {
-            width: 15px;
-            height: 15px;
+            width: 12px;
+            height: 12px;
             background: #eee;
             border-radius: 50%;
             cursor: pointer;
             border: none;
+            transition: transform 0.2s ease;
+        }
+
+        .audio-controls input[type="range"]::-moz-range-thumb:hover {
+            transform: scale(1.1);
+        }
+
+        .general-info {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            color: #ddd;
+            opacity: 0.8;
+        }
+
+        #car-animation-container {
+            position: fixed;
+            bottom: 10px;
+            right: -200px; /* Inicia fora da tela */
+            width: 200px;
+            height: 80px;
+            overflow: hidden;
+            z-index: 5;
+            animation: drive 10s linear infinite;
+        }
+
+        @keyframes drive {
+            0% { right: -200px; }
+            100% { right: calc(100% + 200px); }
+        }
+
+        #car-image {
+            width: 100%;
+            height: auto;
         }
     </style>
 </head>
 <body style="background-image: url('fundo.png'); background-size: cover; background-repeat: no-repeat;">
 
-
-    <div class="audio-controls">
+  <div class="audio-container">
+    <button class="audio-toggle-button" id="toggle-audio-menu">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-music">
+            <path d="M9 17H5a2 2 0 0 0-2 2 2 0 0 0 2 2h2a2 2 0 0 0 2-2 2 0 0 0-2-2z"></path>
+            <path d="M9 11V5l12-2v12"></path>
+        </svg>
+    </button>
+    <div class="audio-controls" id="audio-menu">
         <audio id="audio-fundo" loop>
             <source src="music.mp3" type="audio/mpeg">
             Seu navegador não suporta áudio.
         </audio>
-        <button id="toggle-audio">Ligar Música</button>
+        <button type="button" id="toggle-play">Ligar Música</button>
         <input type="range" id="volume-control" min="0" max="1" step="0.01" value="1">
+    </div>
+  </div>
+
+
+<div class="container">
     </div>
 
     <h1><span style="color: #ff4d4d;">OS</span> Dashboard</h1>
 
+    <div class="general-info">
+      <p id="total-os">Total de OS: 0</p>
+      <p id="total-recebido">Total Recebido: R$ 0.00</p>
+  </div>
     <div class="container">
 
         <form id="formOS">
@@ -377,29 +456,10 @@
 
     </div>
 
+
     <script src="app.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const audioFundo = document.getElementById('audio-fundo');
-            const toggleAudioBtn = document.getElementById('toggle-audio');
-            const volumeControl = document.getElementById('volume-control');
-            let isPlaying = false;
 
-            toggleAudioBtn.addEventListener('click', () => {
-                if (isPlaying) {
-                    audioFundo.pause();
-                    toggleAudioBtn.textContent = 'Ligar Música';
-                } else {
-                    audioFundo.play();
-                    toggleAudioBtn.textContent = 'Desligar Música';
-                }
-                isPlaying = !isPlaying;
-            });
-
-            volumeControl.addEventListener('input', () => {
-                audioFundo.volume = volumeControl.value;
-            });
-        });
     </script>
 </body>
 </html>

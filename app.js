@@ -14,6 +14,20 @@ if (!mecanicoData) {
 document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('formOS').addEventListener('submit', adicionarOS);
     renderizarOS();
+    atualizarInfoGeral(); // Atualiza as informações gerais ao carregar a página
+
+    const audioMenuButton = document.getElementById('toggle-audio-menu');
+    const audioMenu = document.getElementById('audio-menu');
+    const audioFundo = document.getElementById('audio-fundo');
+    const volumeControl = document.getElementById('volume-control');
+
+    audioMenuButton.addEventListener('click', () => {
+        audioMenu.classList.toggle('open');
+    });
+
+    volumeControl.addEventListener('input', () => {
+        audioFundo.volume = volumeControl.value;
+    });
 
     const areaColar = document.getElementById('areaColar');
     const imagemInput = document.getElementById('imagem');
@@ -74,7 +88,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('colarImagemContainer').style.display = 'flex';
     });
 
-    imagemInput.addEventListener('change', function() {
+    imagemInput.addEventListener('change', function () {
         if (this.files && this.files[0]) {
             carregarImagemLocal(this.files[0]);
         }
@@ -131,6 +145,7 @@ function adicionarOS(event) {
     localStorage.setItem('ordensServico', JSON.stringify(ordensServico));
 
     renderizarOS();
+    atualizarInfoGeral(); // Atualiza as informações gerais após adicionar uma OS
     document.getElementById('formOS').reset();
     document.getElementById('imagemColadaContainer').style.display = 'none';
     document.getElementById('colarImagemContainer').style.display = 'flex';
@@ -145,10 +160,10 @@ function dataURLtoBlob(dataurl) {
     const bstr = atob(arr[1]);
     let n = bstr.length;
     const u8arr = new Uint8Array(n);
-    while(n--){
+    while (n--) {
         u8arr[n] = bstr.charCodeAt(n);
     }
-    return new Blob([u8arr], {type:mime});
+    return new Blob([u8arr], { type: mime });
 }
 
 function renderizarOS() {
@@ -160,12 +175,12 @@ function renderizarOS() {
         item.innerHTML = `
             <p><strong>OS:</strong> ${os.numero}</p>
             <p><strong>Data:</strong> ${os.data}</p>
-            <p><strong>Mecânico:</strong> ${os.mecanico} (#${os.mecanicoId})</p>
-            <p><strong>Cliente:</strong> ${os.cliente}</p>
-            <p><strong>Valor Total:</strong> R$ ${os.valorTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
-            <p><strong>Recebido:</strong> R$ ${os.valorRecebido.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
-            <p><strong>Comissão:</strong> R$ ${os.comissao.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
-            <p><strong>Mão de Obra:</strong> R$ ${os.maoDeObra.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
+            <p><strong>Mecânico:</strong> <span class="math-inline">\{os\.mecanico\} \(\#</span>{os.mecanicoId})</p>
+            <p><strong>Cliente:</strong> <span class="math-inline">\{os\.cliente\}</p\>
+<p\><strong\>Valor Total\:</strong\> R</span> <span class="math-inline">\{os\.valorTotal\.toLocaleString\('pt\-BR', \{ minimumFractionDigits\: 2 \}\)\}</p\>
+<p\><strong\>Recebido\:</strong\> R</span> <span class="math-inline">\{os\.valorRecebido\.toLocaleString\('pt\-BR', \{ minimumFractionDigits\: 2 \}\)\}</p\>
+<p\><strong\>Comissão\:</strong\> R</span> <span class="math-inline">\{os\.comissao\.toLocaleString\('pt\-BR', \{ minimumFractionDigits\: 2 \}\)\}</p\>
+<p\><strong\>Mão de Obra\:</strong\> R</span> ${os.maoDeObra.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
             <p><strong>Status:</strong> ${os.status}</p>
             ${os.imagemBase64 ? `<img src="${os.imagemBase64}" alt="Imagem da OS" style="max-width: 100%; border-radius: 8px; margin-top: 0.5rem;">` : ''}
             ${os.status === "Não Pago" ? `<button class="confirmar-btn" onclick="marcarComoPago(${index})">Confirmar como Pago</button>` : ''}
@@ -178,6 +193,7 @@ function marcarComoPago(index) {
     ordensServico[index].status = "Pago";
     localStorage.setItem('ordensServico', JSON.stringify(ordensServico));
     renderizarOS();
+    atualizarInfoGeral(); // Atualiza as informações gerais ao marcar como pago
 }
 
 function importarOS() {
@@ -207,9 +223,9 @@ function importarOS() {
     ordensServico.push(os);
     localStorage.setItem('ordensServico', JSON.stringify(ordensServico));
     renderizarOS();
+    atualizarInfoGeral(); // Atualiza as informações gerais após importar
     document.getElementById('importarTexto').value = '';
 }
-
 
 async function enviarParaDiscordComImagem(os, imagemFile) {
     const webhookUrl = 'https://discord.com/api/webhooks/1291850650891583560/HlannFLY4uKTvlyjlfhl5abOnT3q3G6mhJZBPE7rXjZgJxvZbt2fXf-pJp25oDW7oexD';
@@ -218,12 +234,11 @@ async function enviarParaDiscordComImagem(os, imagemFile) {
     const conteudo = `
 Nova OS - #${os.numero}
 Cliente: ${os.cliente}
-Mecânico: ${os.mecanico} (#${os.mecanicoId})
-Valor: R$ ${os.valorTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-Comissão: R$ ${os.comissao.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+Mecânico: <span class="math-inline">\{os\.mecanico\} \(\#</span>{os.mecanicoId})
+Valor: R$ <span class="math-inline">\{os\.valorTotal\.toLocaleString\('pt\-BR', \{ minimumFractionDigits\: 2 \}\)\}
+Comissão\: R</span> <span class="math-inline">\{os\.comissao\.toLocaleString\('pt\-BR', \{ minimumFractionDigits\: 2 \}\)\}
 Mão de Obra: R$ ${os.maoDeObra.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
 Status: ${os.status}
-Data: ${os.data}
     `.trim();
 
     formData.append("content", conteudo);
@@ -237,20 +252,42 @@ Data: ${os.data}
         body: formData
     });
 }
-document.addEventListener('DOMContentLoaded', () => {
 
+function atualizarInfoGeral() {
+    const totalOS = ordensServico.length;
+    const totalRecebido = ordensServico.reduce((soma, os) => soma + os.valorRecebido, 0);
+
+    document.getElementById('total-os').textContent = `Total de OS: ${totalOS}`;
+    document.getElementById('total-recebido').textContent = `Total Recebido: R$ ${totalRecebido.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
+}
+document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('formOS').addEventListener('submit', adicionarOS);
+    renderizarOS();
+    atualizarInfoGeral(); // Atualiza as informações gerais ao carregar a página
+
+    const audioMenuButton = document.getElementById('toggle-audio-menu');
+    const audioMenu = document.getElementById('audio-menu');
     const audioFundo = document.getElementById('audio-fundo');
-    const toggleAudioBtn = document.getElementById('toggle-audio');
+    const togglePlayBtn = document.getElementById('toggle-play');
+    const volumeControl = document.getElementById('volume-control');
     let isPlaying = false;
 
-    toggleAudioBtn.addEventListener('click', () => {
+    audioMenuButton.addEventListener('click', () => {
+        audioMenu.classList.toggle('open');
+    });
+
+    togglePlayBtn.addEventListener('click', () => {
         if (isPlaying) {
             audioFundo.pause();
-            toggleAudioBtn.textContent = 'Ligar Música';
+            togglePlayBtn.textContent = 'Ligar Música';
         } else {
             audioFundo.play();
-            toggleAudioBtn.textContent = 'Desligar Música';
+            togglePlayBtn.textContent = 'Desligar Música';
         }
         isPlaying = !isPlaying;
+    });
+
+    volumeControl.addEventListener('input', () => {
+        audioFundo.volume = volumeControl.value;
     });
 });
