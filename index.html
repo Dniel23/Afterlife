@@ -1,465 +1,590 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
-    <meta charset="UTF-8" />
-    <title>Dashboard de OS</title>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap');
+  <meta charset="UTF-8" />
+  <title>Dashboard de OS</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap');
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-        body {
-            font-family: 'Orbitron', sans-serif;
-            background: linear-gradient(135deg, #330000, #1a0000); /* Degradê vermelho escuro */
-            color: #fff;
-            position: relative;
-            overflow-x: hidden;
-        }
+    body {
+      font-family: 'Orbitron', sans-serif;
+      background: linear-gradient(135deg, #330000, #1a0000);
+      /* Degradê vermelho escuro */
+      color: #fff;
+      position: relative;
+      overflow-x: hidden;
+    }
 
-        #video-fundo {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            z-index: -2; /* Coloca o vídeo atrás do conteúdo */
-        }
+    #video-fundo {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: -2;
+      /* Coloca o vídeo atrás do conteúdo */
+    }
 
-        body::before {
-            content: "";
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background: rgba(0, 0, 0, 0.6); /* Overlap preto mais suave */
-            backdrop-filter: blur(8px);
-            z-index: -1; /* Coloca o overlay atrás do conteúdo, mas na frente do vídeo */
-        }
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.6);
+      /* Overlap preto mais suave */
+      backdrop-filter: blur(8px);
+      z-index: -1;
+      /* Coloca o overlay atrás do conteúdo, mas na frente do vídeo */
+    }
 
-        h1 {
-            text-align: center;
-            font-size: 3rem;
-            color: #ffdddd; /* Tom de vermelho mais claro */
-            text-shadow: 0 0 15px #ff4d4d; /* Sombra vermelha mais suave */
-            margin: 2rem 0 1rem;
-            animation: glow 3s ease-in-out infinite alternate;
-        }
+    h1 {
+      text-align: center;
+      font-size: 3rem;
+      color: #ffdddd;
+      /* Tom de vermelho mais claro */
+      text-shadow: 0 0 15px #ff4d4d;
+      /* Sombra vermelha mais suave */
+      margin: 2rem 0 1rem;
+      animation: glow 3s ease-in-out infinite alternate;
+    }
 
-        @keyframes glow {
-            from {
-                text-shadow: 0 0 8px #ff4d4d00, 0 0 15px #ff8080;
-            }
-            to {
-                text-shadow: 0 0 15px #ff4d4d, 0 0 30px #ffb3b3;
-            }
-        }
+    @keyframes glow {
+      from {
+        text-shadow: 0 0 8px #ff4d4d00, 0 0 15px #ff8080;
+      }
 
-        .container {
-            max-width: 1000px;
-            margin: auto;
-            padding: 2rem;
-        }
+      to {
+        text-shadow: 0 0 15px #ff4d4d, 0 0 30px #ffb3b3;
+      }
+    }
 
-        form, .importar {
-            background: rgba(255, 255, 255, 0.08); /* Fundo levemente mais visível */
-            border: 1px solid rgba(255, 255, 255, 0.2); /* Borda mais clara */
-            border-radius: 16px;
-            padding: 2rem;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1rem;
-            box-shadow: 0 8px 32px rgba(139, 0, 0, 0.3); /* Sombra vermelha */
-            backdrop-filter: blur(10px);
-            animation: fadeIn 1s ease-out;
-        }
+    .container {
+      max-width: 1000px;
+      margin: auto;
+      padding: 2rem;
+    }
 
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
+    form,
+    .importar {
+      background: rgba(255, 255, 255, 0.08);
+      /* Fundo levemente mais visível */
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      /* Borda mais clara */
+      border-radius: 16px;
+      padding: 2rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      box-shadow: 0 8px 32px rgba(139, 0, 0, 0.3);
+      /* Sombra vermelha */
+      backdrop-filter: blur(10px);
+      animation: fadeIn 1s ease-out;
+    }
 
-        input, select, textarea {
-            padding: 0.75rem;
-            border-radius: 10px;
-            border: none;
-            font-size: 1rem;
-            background: rgba(0, 0, 0, 0.6); /* Fundo mais escuro */
-            color: #eee; /* Texto levemente acinzentado */
-            transition: 0.3s;
-        }
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
 
-        input:focus, select:focus, textarea:focus {
-            outline: none;
-            background: rgba(0, 0, 0, 0.8); /* Foco mais escuro */
-            box-shadow: 0 0 10px #ff6666; /* Sombra de foco vermelha */
-        }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
 
-        button {
-            grid-column: span 2;
-            padding: 0.8rem;
-            border-radius: 12px;
-            font-size: 1rem;
-            font-weight: bold;
-            cursor: pointer;
-            color: white;
-            background: rgba(255, 255, 255, 0.1); /* Fundo mais claro */
-            border: 2px solid transparent;
-            position: relative;
-            transition: border 0.3s ease;
-        }
+    input,
+    select,
+    textarea {
+      padding: 0.75rem;
+      border-radius: 10px;
+      border: none;
+      font-size: 1rem;
+      background: rgba(0, 0, 0, 0.6);
+      /* Fundo mais escuro */
+      color: #eee;
+      /* Texto levemente acinzentado */
+      transition: 0.3s;
+    }
 
-        button::before {
-            content: "";
-            position: absolute;
-            top: -2px;
-            left: -2px;
-            right: -2px;
-            bottom: -2px;
-            border-radius: 14px;
-            background: linear-gradient(90deg, #ff6666, #cc0000, #ff6666); /* Degradê vermelho */
-            background-size: 300% 300%;
-            animation: borderFlow 4s linear infinite;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-            z-index: -1;
-        }
+    input:focus,
+    select:focus,
+    textarea:focus {
+      outline: none;
+      background: rgba(0, 0, 0, 0.8);
+      /* Foco mais escuro */
+      box-shadow: 0 0 10px #ff6666;
+      /* Sombra de foco vermelha */
+    }
 
-        button:hover::before {
-            opacity: 1;
-        }
+    button {
+      grid-column: span 2;
+      padding: 0.8rem;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      color: white;
+      background: rgba(255, 255, 255, 0.1);
+      /* Fundo mais claro */
+      border: 2px solid transparent;
+      position: relative;
+      transition: border 0.3s ease;
+    }
 
-        @keyframes borderFlow {
-            0% {
-                background-position: 0% 50%;
-            }
-            100% {
-                background-position: 100% 50%;
-            }
-        }
+    button::before {
+      content: "";
+      position: absolute;
+      top: -2px;
+      left: -2px;
+      right: -2px;
+      bottom: -2px;
+      border-radius: 14px;
+      background: linear-gradient(90deg, #ff6666, #cc0000, #ff6666);
+      /* Degradê vermelho */
+      background-size: 300% 300%;
+      animation: borderFlow 4s linear infinite;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      z-index: -1;
+    }
 
-        .os-card {
-            background: rgba(0, 0, 0, 0.6); /* Fundo mais escuro */
-            border: 2px solid #ff4d4d; /* Borda vermelha */
-            border-radius: 14px;
-            padding: 1.5rem;
-            margin: 1.5rem 0;
-            box-shadow: 0 0 20px rgba(255, 77, 77, 0.4); /* Sombra vermelha */
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
+    button:hover::before {
+      opacity: 1;
+    }
 
-        .os-card:hover {
-            transform: scale(1.02);
-            box-shadow: 0 0 30px #ffffff;
-        }
+    @keyframes borderFlow {
+      0% {
+        background-position: 0% 50%;
+      }
 
-        .confirmar-btn {
-            margin-top: 1rem;
-            padding: 0.6rem 1rem;
-            background: rgba(255, 255, 255, 0.1); /* Fundo mais claro */
-            color: white;
-            border: 2px solid transparent;
-            border-radius: 10px;
-            font-weight: bold;
-            cursor: pointer;
-            position: relative;
-        }
+      100% {
+        background-position: 100% 50%;
+      }
+    }
 
-        .confirmar-btn::before {
-            content: "";
-            position: absolute;
-            top: -2px;
-            left: -2px;
-            right: -2px;
-            bottom: -2px;
-            border-radius: 12px;
-            background: linear-gradient(90deg, #ff6666, #cc0000, #ff6666); /* Degradê vermelho */
-            background-size: 300% 300%;
-            animation: borderFlow 4s linear infinite;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-            z-index: -1;
-        }
+    .os-card {
+      background: rgba(0, 0, 0, 0.6);
+      /* Fundo mais escuro */
+      border: 2px solid #ff4d4d;
+      /* Borda vermelha */
+      border-radius: 14px;
+      padding: 1.5rem;
+      margin: 1.5rem 0;
+      box-shadow: 0 0 20px rgba(255, 77, 77, 0.4);
+      /* Sombra vermelha */
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
 
-        .confirmar-btn:hover::before {
-            opacity: 1;
-        }
+    .os-card:hover {
+      transform: scale(1.02);
+      box-shadow: 0 0 30px #ffffff;
+    }
 
-        .importar h3 {
-            color: #ffaaaa; /* Tom de vermelho claro */
-        }
+    .confirmar-btn {
+      margin-top: 1rem;
+      padding: 0.6rem 1rem;
+      background: rgba(255, 255, 255, 0.1);
+      /* Fundo mais claro */
+      color: white;
+      border: 2px solid transparent;
+      border-radius: 10px;
+      font-weight: bold;
+      cursor: pointer;
+      position: relative;
+    }
 
-        #colarImagemContainer {
-            grid-column: span 2;
-            display: flex;
-            gap: 0.5rem;
-            margin-bottom: 1rem;
-        }
+    .confirmar-btn::before {
+      content: "";
+      position: absolute;
+      top: -2px;
+      left: -2px;
+      right: -2px;
+      bottom: -2px;
+      border-radius: 12px;
+      background: linear-gradient(90deg, #ff6666, #cc0000, #ff6666);
+      /* Degradê vermelho */
+      background-size: 300% 300%;
+      animation: borderFlow 4s linear infinite;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      z-index: -1;
+    }
 
-        #areaColar {
-            flex-grow: 1;
-            border: 2px dashed rgba(255, 255, 255, 0.3);
-            border-radius: 10px;
-            padding: 1rem;
-            text-align: center;
-            color: #ddd;
-            cursor: pointer;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
+    .confirmar-btn:hover::before {
+      opacity: 1;
+    }
 
-        #areaColar.arrastando {
-            border-color: #ff6666;
-            background-color: rgba(255, 102, 102, 0.1);
-        }
+    .importar h3 {
+      color: #ffaaaa;
+      /* Tom de vermelho claro */
+    }
 
-        #imagemColadaContainer {
-            grid-column: span 2;
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            gap: 0.5rem;
-        }
+    #colarImagemContainer {
+      grid-column: span 2;
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
 
-        #imagemColada {
-            max-width: 100%;
-            height: auto;
-            border-radius: 8px;
-        }
+    #areaColar {
+      flex-grow: 1;
+      border: 2px dashed rgba(255, 255, 255, 0.3);
+      border-radius: 10px;
+      padding: 1rem;
+      text-align: center;
+      color: #ddd;
+      cursor: pointer;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
 
-        #removerImagem {
-            background: rgba(255, 255, 255, 0.1);
-            color: #eee;
-            border: none;
-            padding: 0.5rem 1rem;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
+    #areaColar.arrastando {
+      border-color: #ff6666;
+      background-color: rgba(255, 102, 102, 0.1);
+    }
 
-        #removerImagem:hover {
-            background-color: rgba(255, 255, 255, 0.2);
-        }
+    #imagemColadaContainer {
+      grid-column: span 2;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+    }
 
-        #colarBtn {
-            background: rgba(255, 255, 255, 0.1);
-            color: #eee;
-            border: none;
-            padding: 0.5rem 1rem;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
+    #imagemColada {
+      max-width: 100%;
+      height: auto;
+      border-radius: 8px;
+    }
 
-        #colarBtn:hover {
-            background-color: rgba(255, 255, 255, 0.2);
-        }
+    #removerImagem {
+      background: rgba(255, 255, 255, 0.1);
+      color: #eee;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
 
-        .audio-container {
-            position: fixed;
-            bottom: 20px;
-            left: 20px;
-            z-index: 10;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
+    #removerImagem:hover {
+      background-color: rgba(255, 255, 255, 0.2);
+    }
 
-        .audio-toggle-button {
-            background: rgba(0, 0, 0, 0.3); /* Mais suave */
-            color: #fff;
-            border: none;
-            padding: 0.6rem; /* Menos espaçoso */
-            border-radius: 50%; /* Circular */
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-            width: 40px; /* Tamanho fixo */
-            height: 40px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
+    #colarBtn {
+      background: rgba(255, 255, 255, 0.1);
+      color: #eee;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
 
-        .audio-toggle-button:hover {
-            background-color: rgba(0, 0, 0, 0.5); /* Hover mais suave */
-        }
+    #colarBtn:hover {
+      background-color: rgba(255, 255, 255, 0.2);
+    }
 
-        .audio-toggle-button svg {
-            width: 20px;
-            height: 20px;
-        }
+    .audio-container {
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
 
-        .audio-controls {
-            background: rgba(0, 0, 0, 0.3); /* Mais suave */
-            color: #fff;
-            padding: 10px;
-            border-radius: 8px;
-            margin-top: 0.5rem;
-            display: none;
-            flex-direction: column;
-            gap: 0.5rem;
-            opacity: 0;
-            transform: translateY(10px);
-            transition: opacity 0.3s ease, transform 0.3s ease;
-        }
+    .audio-toggle-button {
+      background: rgba(0, 0, 0, 0.3);
+      /* Mais suave */
+      color: #fff;
+      border: none;
+      padding: 0.6rem;
+      /* Menos espaçoso */
+      border-radius: 50%;
+      /* Circular */
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      width: 40px;
+      /* Tamanho fixo */
+      height: 40px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
 
-        .audio-controls.open {
-            display: flex;
-            opacity: 1;
-            transform: translateY(0);
-        }
+    .audio-toggle-button:hover {
+      background-color: rgba(0, 0, 0, 0.5);
+      /* Hover mais suave */
+    }
 
-        .audio-controls input[type="range"] {
-            -webkit-appearance: none;
-            appearance: none;
-            background: #ddd;
-            border-radius: 5px;
-            height: 5px;
-            cursor: pointer;
-            width: 150px;
-        }
+    .audio-toggle-button svg {
+      width: 20px;
+      height: 20px;
+    }
 
-        .audio-controls input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 12px;
-            height: 12px;
-            background: #eee;
-            border-radius: 50%;
-            cursor: pointer;
-            transition: transform 0.2s ease;
-        }
+    .audio-controls {
+      background: rgba(0, 0, 0, 0.3);
+      /* Mais suave */
+      color: #fff;
+      padding: 10px;
+      border-radius: 8px;
+      margin-top: 0.5rem;
+      display: none;
+      flex-direction: column;
+      gap: 0.5rem;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: opacity 0.3s ease, transform 0.3s ease;
+    }
 
-        .audio-controls input[type="range"]::-webkit-slider-thumb:hover {
-            transform: scale(1.1);
-        }
+    .audio-controls.open {
+      display: flex;
+      opacity: 1;
+      transform: translateY(0);
+    }
 
-        .audio-controls input[type="range"]::-moz-range-thumb {
-            width: 12px;
-            height: 12px;
-            background: #eee;
-            border-radius: 50%;
-            cursor: pointer;
-            border: none;
-            transition: transform 0.2s ease;
-        }
+    .audio-controls input[type="range"] {
+      -webkit-appearance: none;
+      appearance: none;
+      background: #ddd;
+      border-radius: 5px;
+      height: 5px;
+      cursor: pointer;
+      width: 150px;
+    }
 
-        .audio-controls input[type="range"]::-moz-range-thumb:hover {
-            transform: scale(1.1);
-        }
+    .audio-controls input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 12px;
+      height: 12px;
+      background: #eee;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
 
-        .general-info {
-            text-align: center;
-            margin-bottom: 1.5rem;
-            color: #ddd;
-            opacity: 0.8;
-        }
+    .audio-controls input[type="range"]::-webkit-slider-thumb:hover {
+      transform: scale(1.1);
+    }
 
-        #car-animation-container {
-            position: fixed;
-            bottom: 10px;
-            right: -200px; /* Inicia fora da tela */
-            width: 200px;
-            height: 80px;
-            overflow: hidden;
-            z-index: 5;
-            animation: drive 10s linear infinite;
-        }
+    .audio-controls input[type="range"]::-moz-range-thumb {
+      width: 12px;
+      height: 12px;
+      background: #eee;
+      border-radius: 50%;
+      cursor: pointer;
+      border: none;
+      transition: transform 0.2s ease;
+    }
 
-        @keyframes drive {
-            0% { right: -200px; }
-            100% { right: calc(100% + 200px); }
-        }
+    .audio-controls input[type="range"]::-moz-range-thumb:hover {
+      transform: scale(1.1);
+    }
 
-        #car-image {
-            width: 100%;
-            height: auto;
-        }
-    </style>
+    .general-info {
+      text-align: center;
+      margin-bottom: 1.5rem;
+      color: #ddd;
+      opacity: 0.8;
+    }
+
+    #car-animation-container {
+      position: fixed;
+      bottom: 10px;
+      right: -200px;
+      /* Inicia fora da tela */
+      width: 200px;
+      height: 80px;
+      overflow: hidden;
+      z-index: 5;
+      animation: drive 10s linear infinite;
+    }
+
+    @keyframes drive {
+      0% {
+        right: -200px;
+      }
+
+      100% {
+        right: calc(100% + 200px);
+      }
+    }
+
+    #car-image {
+      width: 100%;
+      height: auto;
+    }
+
+    .mensagem-sucesso {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0);
+      /* Inicialmente escondida e escalada para 0 */
+      background-color: rgba(0, 150, 0, 0.8);
+      /* Verde suave */
+      color: white;
+      padding: 1.5rem 2rem;
+      border-radius: 12px;
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      opacity: 0;
+      transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .mensagem-sucesso.mostrar {
+      transform: translate(-50%, -50%) scale(1);
+      /* Escala para 1 para mostrar */
+      opacity: 1;
+    }
+
+    .icone-sucesso svg {
+      width: 2rem;
+      height: 2rem;
+      color: white;
+    }
+
+    .texto-sucesso {
+      font-size: 1.2rem;
+      font-weight: bold;
+    }
+
+    @keyframes pulse {
+      0% {
+        transform: scale(1);
+        opacity: 0.8;
+      }
+
+      50% {
+        transform: scale(1.1);
+        opacity: 1;
+      }
+
+      100% {
+        transform: scale(1);
+        opacity: 0.8;
+      }
+    }
+
+    .icone-sucesso svg {
+      animation: pulse 1.5s ease-in-out infinite alternate;
+    }
+  </style>
 </head>
+
 <body style="background-image: url('fundo.png'); background-size: cover; background-repeat: no-repeat;">
 
-  <div class="audio-container">
-    <button class="audio-toggle-button" id="toggle-audio-menu">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-music">
-            <path d="M9 17H5a2 2 0 0 0-2 2 2 0 0 0 2 2h2a2 2 0 0 0 2-2 2 0 0 0-2-2z"></path>
-            <path d="M9 11V5l12-2v12"></path>
+  <div class="audio-controls">
+    <audio id="audio-fundo" loop>
+      <source src="music.mp3" type="audio/mpeg">
+      Seu navegador não suporta áudio.
+    </audio>
+    <button id="toggle-audio">Ligar Música</button>
+    <input type="range" id="volume-control" min="0" max="1" step="0.01" value="1">
+  </div>
+
+
+  <div class="container">
+  </div>
+
+  <h1><span style="color: #ff4d4d;">OS</span> Dashboard</h1>
+
+  <div class="general-info">
+    <p id="total-os">Total de OS: 0</p>
+    <p id="total-recebido">Total Recebido: R$ 0.00</p>
+  </div>
+  <div class="container">
+
+    <form id="formOS">
+      <input type="text" id="numero" placeholder="Nº OS" required>
+      <input type="text" id="cliente" placeholder="Cliente" required>
+      <input type="number" id="valorTotal" placeholder="Valor Total" required>
+      <select id="status">
+        <option value="Não Pago">Não Pago</option>
+        <option value="Pago">Pago</option>
+      </select>
+
+      <div id="colarImagemContainer">
+        <div id="areaColar">
+          Clique ou arraste uma imagem
+        </div>
+        <button type="button" id="colarBtn">Colar Imagem</button>
+      </div>
+      <input type="file" id="imagem" accept="image/*" style="display: none;">
+
+      <div id="imagemColadaContainer">
+        <img id="imagemColada" src="#" alt="Imagem Colada">
+        <button type="button" id="removerImagem">Remover Imagem</button>
+      </div>
+
+      <button type="submit">Adicionar OS</button>
+    </form>
+
+    <div class="importar">
+      <h3 style="grid-column: span 2;">Importar OS não paga</h3>
+      <textarea id="importarTexto" rows="5" placeholder="Cole o texto da OS aqui..."></textarea>
+      <button onclick="importarOS()">Importar OS</button>
+    </div>
+
+    <div id="mensagem-sucesso" class="mensagem-sucesso">
+      <div class="icone-sucesso">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+          stroke-linejoin="round" class="feather feather-check-circle">
+          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+          <polyline points="22 4 12 14.01 9 11.01"></polyline>
         </svg>
-    </button>
-    <div class="audio-controls" id="audio-menu">
-        <audio id="audio-fundo" loop>
-            <source src="music.mp3" type="audio/mpeg">
-            Seu navegador não suporta áudio.
-        </audio>
-        <button type="button" id="toggle-play">Ligar Música</button>
-        <input type="range" id="volume-control" min="0" max="1" step="0.01" value="1">
+      </div>
+      <span class="texto-sucesso">OS Criada com Sucesso!</span>
     </div>
+
+    <div id="listaOS">
+    </div>
+
   </div>
 
 
-<div class="container">
-    </div>
+  <script src="app.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const audioFundo = document.getElementById('audio-fundo');
+      const toggleAudioBtn = document.getElementById('toggle-audio');
+      const volumeControl = document.getElementById('volume-control');
+      let isPlaying = false;
 
-    <h1><span style="color: #ff4d4d;">OS</span> Dashboard</h1>
+      toggleAudioBtn.addEventListener('click', () => {
+        if (isPlaying) {
+          audioFundo.pause();
+          toggleAudioBtn.textContent = 'Ligar Música';
+        } else {
+          audioFundo.play();
+          toggleAudioBtn.textContent = 'Desligar Música';
+        }
+        isPlaying = !isPlaying;
+      });
 
-    <div class="general-info">
-      <p id="total-os">Total de OS: 0</p>
-      <p id="total-recebido">Total Recebido: R$ 0.00</p>
-  </div>
-    <div class="container">
-
-        <form id="formOS">
-            <input type="text" id="numero" placeholder="Nº OS" required>
-            <input type="text" id="cliente" placeholder="Cliente" required>
-            <input type="number" id="valorTotal" placeholder="Valor Total" required>
-            <select id="status">
-                <option value="Não Pago">Não Pago</option>
-                <option value="Pago">Pago</option>
-            </select>
-
-            <div id="colarImagemContainer">
-                <div id="areaColar">
-                    Clique ou arraste uma imagem
-                </div>
-                <button type="button" id="colarBtn">Colar Imagem</button>
-            </div>
-            <input type="file" id="imagem" accept="image/*" style="display: none;">
-
-            <div id="imagemColadaContainer">
-                <img id="imagemColada" src="#" alt="Imagem Colada">
-                <button type="button" id="removerImagem">Remover Imagem</button>
-            </div>
-
-            <button type="submit">Adicionar OS</button>
-        </form>
-
-        <div class="importar">
-            <h3 style="grid-column: span 2;">Importar OS não paga</h3>
-            <textarea id="importarTexto" rows="5" placeholder="Cole o texto da OS aqui..."></textarea>
-            <button onclick="importarOS()">Importar OS</button>
-        </div>
-
-        <div id="listaOS">
-        </div>
-
-    </div>
-
-
-    <script src="app.js"></script>
-    <script>
-
-    </script>
+      volumeControl.addEventListener('input', () => {
+        audioFundo.volume = volumeControl.value;
+      });
+    });
+  </script>
 </body>
+
 </html>
