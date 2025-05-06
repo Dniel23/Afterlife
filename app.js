@@ -237,3 +237,20 @@ Data: ${os.data}
         body: formData
     });
 }
+document.addEventListener('DOMContentLoaded', () => {
+
+    const audioFundo = document.getElementById('audio-fundo');
+    const toggleAudioBtn = document.getElementById('toggle-audio');
+    let isPlaying = false;
+
+    toggleAudioBtn.addEventListener('click', () => {
+        if (isPlaying) {
+            audioFundo.pause();
+            toggleAudioBtn.textContent = 'Ligar Música';
+        } else {
+            audioFundo.play();
+            toggleAudioBtn.textContent = 'Desligar Música';
+        }
+        isPlaying = !isPlaying;
+    });
+});
