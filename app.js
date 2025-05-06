@@ -1,4 +1,6 @@
-const ordensServico = JSON.parse(localStorage.getItem('ordensServico')) || [];
+// app.js
+
+let ordensServico = JSON.parse(localStorage.getItem('ordensServico')) || [];
 
 let mecanicoData = localStorage.getItem('mecanicoInfo');
 if (!mecanicoData) {
@@ -10,15 +12,10 @@ if (!mecanicoData) {
     mecanicoData = JSON.parse(mecanicoData);
 }
 
-const discordWebhookURL = 'https://discord.com/api/webhooks/1291850662480580669/aejdDMU8XQ-uJdNy_7Ol6IAqO5L0GyY6vCEKUCnsQS69lrjlmTz4R5zLVq40dqLCAUy8'; // Substitua com a URL do seu Webhook do Discord
-
-// Função para formatar os valores para o padrão monetário brasileiro
-function formatarValor(valor) {
-    return new Intl.NumberFormat('pt-BR', {
-        style: 'currency',
-        currency: 'BRL'
-    }).format(valor);
-}
+document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('formOS').addEventListener('submit', adicionarOS);
+    renderizarOS();
+});
 
 function adicionarOS(event) {
     event.preventDefault();
@@ -26,12 +23,14 @@ function adicionarOS(event) {
     const numero = document.getElementById('numero').value;
     const cliente = document.getElementById('cliente').value;
     const valorTotal = parseFloat(document.getElementById('valorTotal').value);
-    const valorRecebido = valorTotal * 0.2;
     const status = document.getElementById('status').value;
     const dataAtual = new Date().toISOString().split('T')[0];
+    const imagemInput = document.getElementById('imagem');
+    const imagemFile = imagemInput.files[0];
 
     const comissao = valorTotal * 0.2;
     const maoDeObra = valorTotal >= 50000 ? 0 : (valorTotal < 5000 ? 1000 : 0);
+    const valorRecebido = comissao;
 
     const os = {
         numero,
@@ -52,8 +51,7 @@ function adicionarOS(event) {
     renderizarOS();
     document.getElementById('formOS').reset();
 
-    // Enviar para o Discord
-    enviarParaDiscord(os);
+    enviarParaDiscordComImagem(os, imagemFile);
 }
 
 function renderizarOS() {
@@ -67,65 +65,75 @@ function renderizarOS() {
             <p><strong>Data:</strong> ${os.data}</p>
             <p><strong>Mecânico:</strong> ${os.mecanico} (#${os.mecanicoId})</p>
             <p><strong>Cliente:</strong> ${os.cliente}</p>
-            <p><strong>Valor Total:</strong> ${formatarValor(os.valorTotal)}</p>
-            <p><strong>Recebido:</strong> ${formatarValor(os.valorRecebido)}</p>
-            <p><strong>Comissão:</strong> ${formatarValor(os.comissao)}</p>
-            <p><strong>Mão de Obra:</strong> ${formatarValor(os.maoDeObra)}</p>
+            <p><strong>Valor Total:</strong> R$ ${os.valorTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
+            <p><strong>Recebido:</strong> R$ ${os.valorRecebido.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
+            <p><strong>Comissão:</strong> R$ ${os.comissao.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
+            <p><strong>Mão de Obra:</strong> R$ ${os.maoDeObra.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
             <p><strong>Status:</strong> ${os.status}</p>
-            <button onclick="alterarStatus(${index})">Alterar Status</button>
+            ${os.status === "Não Pago" ? `<button class="confirmar-btn" onclick="marcarComoPago(${index})">Confirmar como Pago</button>` : ''}
         `;
         lista.appendChild(item);
     });
 }
 
-function alterarStatus(index) {
-    const os = ordensServico[index];
-    const novoStatus = prompt(`Alterar status de pagamento para OS #${os.numero} (Atual: ${os.status})`, os.status);
-
-    if (novoStatus && (novoStatus === 'Pago' || novoStatus === 'Não Pago')) {
-        ordensServico[index].status = novoStatus;
-        localStorage.setItem('ordensServico', JSON.stringify(ordensServico));
-        renderizarOS();
-
-        // Enviar a atualização para o Discord
-        enviarParaDiscord(ordensServico[index]);
-    } else {
-        alert('Status inválido! Use "Pago" ou "Não Pago".');
-    }
+function marcarComoPago(index) {
+    ordensServico[index].status = "Pago";
+    localStorage.setItem('ordensServico', JSON.stringify(ordensServico));
+    renderizarOS();
 }
 
-function enviarParaDiscord(os) {
-    const embed = {
-        "embeds": [{
-            "title": `Ordem de Serviço - #${os.numero}`,
-            "color": 3066993,
-            "fields": [
-                { "name": "Data", "value": os.data, "inline": true },
-                { "name": "Mecânico", "value": `${os.mecanico} (#${os.mecanicoId})`, "inline": true },
-                { "name": "Cliente", "value": os.cliente, "inline": true },
-                { "name": "Valor Total", "value": formatarValor(os.valorTotal), "inline": true },
-                { "name": "Valor Recebido", "value": formatarValor(os.valorRecebido), "inline": true },
-                { "name": "Comissão", "value": formatarValor(os.comissao), "inline": true },
-                { "name": "Mão de Obra", "value": formatarValor(os.maoDeObra), "inline": true },
-                { "name": "Status", "value": os.status, "inline": true }
-            ],
-            "footer": {
-                "text": "Sistema de Ordens de Serviço"
-            }
-        }]
+function importarOS() {
+    const texto = document.getElementById('importarTexto').value;
+    const regex = /#(\d+)\s*Cliente:\s*(.*)\s*Mecânico:\s*(.*)\s*\(#(\d+)\)\s*Valor:\s*R\$\s*([\d.,]+)\s*Status:\s*(.+)\s*Data:\s*(\d{4}-\d{2}-\d{2})/;
+
+    const match = texto.match(regex);
+    if (!match) {
+        alert("Formato inválido! Certifique-se de que está seguindo o padrão.");
+        return;
+    }
+
+    const os = {
+        numero: match[1],
+        cliente: match[2],
+        mecanico: match[3],
+        mecanicoId: match[4],
+        valorTotal: parseFloat(match[5].replace('.', '').replace(',', '.')),
+        status: match[6],
+        data: match[7],
     };
 
-    fetch(discordWebhookURL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(embed)
-    })
-    .then(response => response.json())
-    .then(data => console.log("Mensagem enviada para o Discord:", data))
-    .catch(error => console.error("Erro ao enviar para o Discord:", error));
+    os.valorRecebido = os.valorTotal * 0.2;
+    os.comissao = os.valorRecebido;
+    os.maoDeObra = os.valorTotal >= 50000 ? 0 : (os.valorTotal < 5000 ? 1000 : 0);
+
+    ordensServico.push(os);
+    localStorage.setItem('ordensServico', JSON.stringify(ordensServico));
+    renderizarOS();
+    document.getElementById('importarTexto').value = '';
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    document.getElementById('formOS').addEventListener('submit', adicionarOS);
-    renderizarOS();
-});
+
+async function enviarParaDiscordComImagem(os, imagemFile) {
+    const webhookUrl = 'https://discord.com/api/webhooks/1291850650891583560/HlannFLY4uKTvlyjlfhl5abOnT3q3G6mhJZBPE7rXjZgJxvZbt2fXf-pJp25oDW7oexD';
+
+    const formData = new FormData();
+    const conteudo = `
+Nova OS - #${os.numero}
+Cliente: ${os.cliente}
+Mecânico: ${os.mecanico} (#${os.mecanicoId})
+Valor: R$ ${os.valorTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+Status: ${os.status}
+Data: ${os.data}
+    `.trim();
+
+    formData.append("content", conteudo);
+
+    if (imagemFile) {
+        formData.append("file", imagemFile, imagemFile.name);
+    }
+
+    await fetch(webhookUrl, {
+        method: 'POST',
+        body: formData
+    });
+}
