@@ -122,6 +122,8 @@ Nova OS - #${os.numero}
 Cliente: ${os.cliente}
 Mecânico: ${os.mecanico} (#${os.mecanicoId})
 Valor: R$ ${os.valorTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+Comissão: R$ ${os.comissao.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+Mão de Obra: R$ ${os.maoDeObra.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
 Status: ${os.status}
 Data: ${os.data}
     `.trim();

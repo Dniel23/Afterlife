@@ -4,76 +4,199 @@
   <meta charset="UTF-8" />
   <title>Dashboard de OS</title>
   <style>
-    body {
-      background-color: #111;
-      color: #0f0;
-      font-family: 'Courier New', Courier, monospace;
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap');
+
+    * {
       margin: 0;
       padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Orbitron', sans-serif;
+      background: linear-gradient(135deg, #1b0032, #000428);
+      color: #fff;
+      background-image: url('https://images.unsplash.com/photo-1630477677444-dbc7046cc3b4?auto=format&fit=crop&w=1950&q=80');
+      background-size: cover;
+      background-attachment: fixed;
+      background-position: center;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(10px);
+      z-index: -1;
     }
 
     h1 {
       text-align: center;
-      padding: 1rem;
+      font-size: 3rem;
+      color: #7df9ff;
+      text-shadow: 0 0 20px #00ffff;
+      margin: 2rem 0 1rem;
+      animation: glow 3s ease-in-out infinite alternate;
+    }
+
+    @keyframes glow {
+      from {
+        text-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff;
+      }
+      to {
+        text-shadow: 0 0 20px #7df9ff, 0 0 40px #7df9ff;
+      }
     }
 
     .container {
+      max-width: 1000px;
+      margin: auto;
       padding: 2rem;
     }
 
     form, .importar {
-      background: #222;
-      padding: 1rem;
-      margin-bottom: 2rem;
-      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 16px;
+      padding: 2rem;
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 1rem;
+      box-shadow: 0 8px 32px rgba(31, 38, 135, 0.3);
+      backdrop-filter: blur(15px);
+      animation: fadeIn 1s ease-out;
     }
 
-    form input, form select, form button, .importar textarea {
-      padding: 0.5rem;
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    input, select, textarea {
+      padding: 0.75rem;
+      border-radius: 10px;
       border: none;
-      border-radius: 5px;
+      font-size: 1rem;
+      background: rgba(0, 0, 0, 0.5);
+      color: white;
+      transition: 0.3s;
     }
 
-    form button, .importar button {
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      background: rgba(0, 0, 0, 0.7);
+      box-shadow: 0 0 10px #00f2ff;
+    }
+
+    button {
       grid-column: span 2;
-      background: #0f0;
-      color: #000;
+      padding: 0.8rem;
+      border-radius: 12px;
+      font-size: 1rem;
       font-weight: bold;
+      cursor: pointer;
+      color: white;
+      background: rgba(255, 255, 255, 0.05);
+      border: 2px solid transparent;
+      position: relative;
+      transition: border 0.3s ease;
+    }
+
+    button::before {
+      content: "";
+      position: absolute;
+      top: -2px;
+      left: -2px;
+      right: -2px;
+      bottom: -2px;
+      border-radius: 14px;
+      background: linear-gradient(90deg, #00ffff, #ff00ff, #00ffff);
+      background-size: 300% 300%;
+      animation: borderFlow 4s linear infinite;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      z-index: -1;
+    }
+
+    button:hover::before {
+      opacity: 1;
+    }
+
+    @keyframes borderFlow {
+      0% {
+        background-position: 0% 50%;
+      }
+      100% {
+        background-position: 100% 50%;
+      }
     }
 
     .os-card {
-      background: linear-gradient(145deg, #1a1a1a, #222);
-      border: 2px solid #0f0;
-      padding: 1rem;
-      margin-bottom: 1rem;
-      border-radius: 10px;
-      animation: pulse 2s infinite;
+      background: rgba(0, 0, 0, 0.5);
+      border: 2px solid #6e00ff;
+      border-radius: 14px;
+      padding: 1.5rem;
+      margin: 1.5rem 0;
+      box-shadow: 0 0 20px rgba(110, 0, 255, 0.3);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .os-card:hover {
+      transform: scale(1.02);
+      box-shadow: 0 0 30px #00f2ff;
     }
 
     .confirmar-btn {
-      margin-top: 10px;
-      padding: 5px;
-      background-color: #0f0;
-      color: #000;
+      margin-top: 1rem;
+      padding: 0.6rem 1rem;
+      background: rgba(255, 255, 255, 0.05);
+      color: white;
+      border: 2px solid transparent;
+      border-radius: 10px;
       font-weight: bold;
-      border: none;
-      border-radius: 5px;
       cursor: pointer;
+      position: relative;
     }
 
-    @keyframes pulse {
-      0% { border-color: #0f0; }
-      50% { border-color: #3f3; }
-      100% { border-color: #0f0; }
+    .confirmar-btn::before {
+      content: "";
+      position: absolute;
+      top: -2px;
+      left: -2px;
+      right: -2px;
+      bottom: -2px;
+      border-radius: 12px;
+      background: linear-gradient(90deg, #00ffff, #ff00ff, #00ffff);
+      background-size: 300% 300%;
+      animation: borderFlow 4s linear infinite;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      z-index: -1;
+    }
+
+    .confirmar-btn:hover::before {
+      opacity: 1;
     }
   </style>
 </head>
 <body>
-  <h1>Cadastro de Ordem de Serviço</h1>
+
+  <h1>📋 Cadastro de Ordem de Serviço</h1>
+
   <div class="container">
+
     <form id="formOS">
       <input type="text" id="numero" placeholder="Nº OS" required>
       <input type="text" id="cliente" placeholder="Cliente" required>
@@ -87,12 +210,15 @@
     </form>
 
     <div class="importar">
-      <h3>Importar OS não paga</h3>
+      <h3 style="grid-column: span 2; color: #7df9ff;">Importar OS não paga</h3>
       <textarea id="importarTexto" rows="5" placeholder="Cole o texto da OS aqui..."></textarea>
       <button onclick="importarOS()">Importar OS</button>
     </div>
 
-    <div id="listaOS"></div>
+    <div id="listaOS">
+      <!-- Os cards de OS aparecerão aqui -->
+    </div>
+
   </div>
 
   <script src="app.js"></script>
