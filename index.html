@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard de OS</title>
+    <style>
+        body {
+            background-color: #111;
+            color: #0f0;
+            font-family: 'Courier New', Courier, monospace;
+            margin: 0;
+            padding: 0;
+        }
+        h1 {
+            text-align: center;
+            padding: 1rem;
+        }
+        .container {
+            padding: 2rem;
+        }
+        form {
+            background: #222;
+            padding: 1rem;
+            margin-bottom: 2rem;
+            border-radius: 10px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+        form input, form select, form button {
+            padding: 0.5rem;
+            border: none;
+            border-radius: 5px;
+        }
+        .os-card {
+            background: linear-gradient(145deg, #1a1a1a, #222);
+            border: 2px solid #0f0;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 10px;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { border-color: #0f0; }
+            50% { border-color: #3f3; }
+            100% { border-color: #0f0; }
+        }
+    </style>
+</head>
+<body>
+    <h1>Cadastro de Ordem de Serviço</h1>
+    <div class="container">
+        <form id="formOS">
+            <input type="text" id="numero" placeholder="Nº OS" required>
+            <input type="text" id="cliente" placeholder="Cliente" required>
+            <input type="number" id="valorTotal" placeholder="Valor Total" required>
+            <select id="status">
+                <option value="Não Pago">Não Pago</option>
+                <option value="Pago">Pago</option>
+
+            </select>
+            <button type="submit">Adicionar OS</button>
+        </form>
+        <div id="listaOS"></div>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>
